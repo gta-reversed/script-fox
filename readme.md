@@ -43,3 +43,6 @@ See `--help` for a full list of options
     ```
 
 For convenience the `./script-fox.sh` script is provided to run the app without having to prefix commands with `poetry run python -m app`.
+
+# Special thanks to
+- All contributors of [Sanny Builder Library](https://library.sannybuilder.com/#/) - For providing the command and enums metadata
