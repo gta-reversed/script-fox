@@ -97,9 +97,13 @@ def write_register_handler(f: io.TextIOWrapper, cmd: Command):
     """
 
     if cmd.get("attrs", {}).get("is_nop", False):
+        types = [
+            "int32" if param["type"] == "any" else param["type"] # We could use anything for `any`, we just need to read the args so the IP is adjusted correctly
+            for param in typemapper.get_transformed_input_parameters(cmd, True)
+        ]
         write_code_line(
             f,
-            f'REGISTER_COMMAND_NOP({cmd["name"]}, {util.get_handler_name(cmd)});',
+            f'REGISTER_COMMAND_NOP({cmd["name"]}, {util.get_handler_name(cmd)}{''.join(f', {t}' for t in types)});',
             1,
         )
     else:

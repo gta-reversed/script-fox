@@ -6,7 +6,7 @@ from typing import cast
 
 from . import util
 from .data import DEFINITIONS
-from .writers import write_code_line, write_docs, write_handler_function_stub
+from .writers import write_code_line, write_docs, write_handler_function_stub, write_register_handler
 from .args import args
 from .jsontypes import Command
 
@@ -234,6 +234,7 @@ def generate_new(commands_by_criteria: list[Command]):
 
             write_docs(f, cmd)
             write_handler_function_stub(f, cmd)
+            f.write('\n')
 
     # Write handlers
     with output_path.with_stem(f"{output_path.stem}.handlers").open(
@@ -247,20 +248,7 @@ def generate_new(commands_by_criteria: list[Command]):
             ]:
                 for cmd in commands_by_criteria:
                     if cmd.get("attrs", {}).get("is_nop", False) == is_nop:
-                        if is_nop:
-                            write_code_line(
-                                f,
-                                f'REGISTER_COMMAND_NOP({cmd["name"]});',
-                                1,
-                            )
-                        else:
-                            write_code_line(
-                                f,
-                                f'REGISTER_COMMAND_HANDLER({cmd["name"]}, {util.get_handler_name(cmd)});',
-                                1,
-                            )
-
-                        f.write("\n")
+                        write_register_handler(f, cmd)
 
     logger.info(
         "Processed %i commands to `%s`",
