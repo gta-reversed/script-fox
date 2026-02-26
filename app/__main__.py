@@ -226,7 +226,7 @@ def generate_new(commands_by_criteria: list[Command]):
         for cmd in commands_by_criteria:
             if cmd.get("attrs", {}).get("is_nop", False):
                 logger.warning(
-                    "No stub will be generated for command %s (0x%x) since it is marked as a no-op",
+                    "No stub will be generated for command %s (%s) since it is marked as a no-op",
                     cmd["name"],
                     cmd["id"],
                 )
