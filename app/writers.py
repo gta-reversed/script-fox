@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import io
+import textwrap
 
 from .jsontypes import Command
 from . import typemapper, util
@@ -53,7 +54,8 @@ def write_docs(f: io.TextIOWrapper, cmd: Command):
 
         if "short_desc" in cmd:
             write_ln(" * ")
-            write_ln(f' * @brief {cmd["short_desc"]}')
+            for line in textwrap.wrap(cmd["short_desc"], width=80):
+                write_ln(f" * @brief {line}")
 
         if input_params := typemapper.get_transformed_input_parameters(cmd, False):
             write_ln(" * ")
