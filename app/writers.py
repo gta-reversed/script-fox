@@ -1,13 +1,14 @@
 from contextlib import contextmanager
 import io
 import textwrap
+import typing
 
 from .jsontypes import Command
 from . import typemapper, util
 from .args import args
 
 
-def write_code_line(f: io.TextIOWrapper, line: str, indent_level: int = 0, suffix="\n"):
+def write_code_line(f: typing.TextIO, line: str, indent_level: int = 0, suffix="\n"):
     """
     Writes a single line of code to the provided file-like object, with optional indentation and commenting out based on command-line arguments.
     If `args.commented_out` is True, the line will be prefixed with "// ".
@@ -21,7 +22,7 @@ def write_code_line(f: io.TextIOWrapper, line: str, indent_level: int = 0, suffi
 
 
 @contextmanager
-def write_multi_line_comment(f: io.TextIOWrapper):
+def write_multi_line_comment(f: typing.TextIO):
     """
     Context manager for writing multi-line comments. When used, it will automatically wrap the content in /* ... */.
     """
@@ -31,7 +32,7 @@ def write_multi_line_comment(f: io.TextIOWrapper):
     f.write(" */\n")
 
 
-def write_docs(f: io.TextIOWrapper, cmd: Command):
+def write_docs(f: typing.TextIO, cmd: Command):
     """
     Write C++ doxygen-like documentation for the given command to the provided file-like object.
     The documentation includes opcode, command name, class/member info, static/condition attributes, brief description, and parameter/return type information.
@@ -71,7 +72,7 @@ def write_docs(f: io.TextIOWrapper, cmd: Command):
             )
 
 
-def write_handler_function_stub(f: io.TextIOWrapper, cmd: Command):
+def write_handler_function_stub(f: typing.TextIO, cmd: Command):
     """
     Writes C++ handler function stub for the given command to the provided file-like object.
     The function signature is determined based on the command's attributes and output parameters.
@@ -90,7 +91,7 @@ def write_handler_function_stub(f: io.TextIOWrapper, cmd: Command):
     write_code_line(f, "}", 0)
 
 
-def write_register_handler(f: io.TextIOWrapper, cmd: Command):
+def write_register_handler(f: typing.TextIO, cmd: Command):
     """
     Writes the appropriate command registration line for the given command to the provided file-like object.
     Depending on whether the command is a no-op or not, it will use either REGISTER_COMMAND_HANDLER or REGISTER_COMMAND_NOP.
