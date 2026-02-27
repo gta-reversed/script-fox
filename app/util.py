@@ -4,7 +4,10 @@ from .jsontypes import Command
 def to_camel_case(s: str) -> str:
     return f"{s[0].lower()}{s[1:]}" if s else s
 
-def get_handler_name(command: Command) -> str:
+def get_handler_name(command: Command) -> str | None:
+    if attrs := command.get("attrs", None):
+        if attrs.get("is_nop", False) or attrs.get("is_unsupported", False):
+            return None
     return "".join(v.capitalize() for v in command["name"].split("_"))
 
 def get_handler_return_type(command: Command) -> str:
