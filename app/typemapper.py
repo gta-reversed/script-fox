@@ -2,7 +2,7 @@ import re
 from typing import TypeVar, cast
 
 from .args import args
-from .cpp import is_cpp_reserved_keyword
+from .cpp import is_cpp_reserved_keyword_or_typename
 from .data import DEFINITIONS, ENUMS
 from .jsontypes import Command, CommandInputParameter, CommandOutputParameter
 from . import util
@@ -115,7 +115,7 @@ def get_transformed_input_parameters(command: Command, is_for_handler: bool):
                 param["type"] += "*" if is_static and i == 0 else "&"
 
         # Handle reserved keywords in C++
-        if is_cpp_reserved_keyword(param["name"]):
+        if is_cpp_reserved_keyword_or_typename(param["name"]):
             param["name"] += "_"
 
         out.append(param)

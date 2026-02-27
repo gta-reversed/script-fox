@@ -79,7 +79,6 @@ CPP_RESERVED_KEYWORDS = {
     "typeid",
     "typename",
     "union",
-    "unsigned",
     "using",
     "virtual",
     "void",
@@ -90,7 +89,10 @@ CPP_RESERVED_KEYWORDS = {
     "xor_eq",
     "true",
     "false",
-    # Types
+}
+
+CPP_TYPENAMES = {
+    "unsigned",
     "char",
     "char8_t",
     "char16_t",
@@ -109,5 +111,5 @@ CPP_RESERVED_KEYWORDS = {
     "nullptr_t",
 }
 
-def is_cpp_reserved_keyword(word: str) -> bool:
-    return word in CPP_RESERVED_KEYWORDS
+def is_cpp_reserved_keyword_or_typename(word: str) -> bool:
+    return word in CPP_RESERVED_KEYWORDS or word in CPP_TYPENAMES
