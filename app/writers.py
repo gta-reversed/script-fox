@@ -53,9 +53,9 @@ def write_docs(f: typing.TextIO, cmd: Command):
         if cmd.get("attrs", {}).get("is_static", False):
             write_ln(" * @static")
 
-        if "short_desc" in cmd:
+        if short_desc := cmd.get("short_desc", ''):
             write_ln(" * ")
-            for line in textwrap.wrap(cmd["short_desc"], width=80):
+            for line in textwrap.wrap(short_desc, width=80):
                 write_ln(f" * @brief {line}")
 
         if input_params := typemapper.get_transformed_input_parameters(cmd, False):
