@@ -97,19 +97,19 @@ def write_register_handler(f: typing.TextIO, cmd: Command):
     Depending on whether the command is a no-op or not, it will use either REGISTER_COMMAND_HANDLER or REGISTER_COMMAND_NOP.
     """
 
-    if cmd.get("attrs", {}).get("is_nop", False):
+    if handler_name := util.get_handler_name(cmd):
+        write_code_line(
+            f,
+            f'REGISTER_COMMAND_HANDLER({cmd["name"]}, {handler_name});',
+            1,
+        )
+    else:
         types = [
             "int32" if param["type"] == "any" else param["type"] # We could use anything for `any`, we just need to read the args so the IP is adjusted correctly
             for param in typemapper.get_transformed_input_parameters(cmd, True)
         ]
         write_code_line(
             f,
-            f'REGISTER_COMMAND_NOP({cmd["name"]}, {util.get_handler_name(cmd)}{''.join(f', {t}' for t in types)});',
-            1,
-        )
-    else:
-        write_code_line(
-            f,
-            f'REGISTER_COMMAND_HANDLER({cmd["name"]}, {util.get_handler_name(cmd)});',
+            f'REGISTER_COMMAND_NOP({cmd["name"]}{''.join(f', {t}' for t in types)});',
             1,
         )
