@@ -55,6 +55,12 @@ arg_parser.add_argument(
     help="Transform groups of x, y, (z) parameters into vector types (CVector2D, CVector for cpp handler, or Vector, Vector2D in script docs)",
     default=True,
 )
+arg_parser.add_argument(
+    '--update-existing-docs',
+    action='store_true',
+    help='Update existing docs with new information from the definitions file (e.g. parameter types, return types, descriptions, etc.))',
+    default=False
+)
 
 args = arg_parser.parse_args()
 if not args.output:

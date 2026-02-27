@@ -33,7 +33,7 @@ def update_existing(commands_by_criteria: list[Command]):
     with Path(args.input).open("r+", encoding="utf-8") as f:
         lines = f.readlines()
 
-    with Path(args.output or args.input).open("w", encoding="utf-8") as f:
+    with Path(args.output).open("w", encoding="utf-8") as f:
         # Find where `RegisterHandlers` is
         # We assume it's at the end of the file, if not, the code below won't work all that good...
         register_handlers_line_index = next(
@@ -134,19 +134,60 @@ def update_existing(commands_by_criteria: list[Command]):
         # Keep track of handlers we've already added docs for
         has_docs_commands = set()
         handlers_found = set()
-        
-        # New style docs comment regex
-        new_style_docs_comment_regex = re.compile(
-            r"@command\s+(?P<command>[A-Za-z0-9_]+)"
-        )
 
-        # Add docs to handlers
-        for v in lines[:register_handlers_line_index]:
-            stripped_line = v.strip()
+        # Process rest of the file
+        i_line = 0
+        while i_line < register_handlers_line_index:
+            line = lines[i_line]
+            stripped_line = lines[i_line].strip()
 
-            # Process new-style docs comments
-            if match := new_style_docs_comment_regex.search(stripped_line):
-                has_docs_commands.add(match.group("command"))
+            if stripped_line.startswith("/*"):
+                i_end_of_comment = next(
+                    (
+                        j
+                        for j, line in enumerate(lines[i_line:], start=i_line)
+                        if line.strip().endswith("*/")
+                    ),
+                    None,
+                )
+                if i_end_of_comment is None:
+                    raise NotImplementedError(
+                        f"Unclosed comment block starting at line {i_line}, cannot update existing docs"
+                    ) from None
+
+                # Find command name from docs
+                command_name = next(
+                    (
+                        cast(str, match.group("command_name"))
+                        for line in lines[i_line:i_end_of_comment]
+                        if (
+                            match := re.search(
+                                r"\s*\*\s*@command\s+(?P<command_name>[A-Za-z0-9_]+)\s*$",
+                                line,
+                            )
+                        )
+                    ),
+                    None,
+                )
+                if command_name:
+                    # Avoid generating docs again
+                    has_docs_commands.add(command_name)
+
+                    if args.update_existing_docs:
+                        # Write new docs and skip to line after the docs end
+                        try:
+                            write_docs(f, commands_by_name[command_name])
+                            logger.info(
+                                "Updated docs for command `%s` based on definitions file",
+                                command_name
+                            )
+                        except KeyError:
+                            logger.warning(
+                                "Command `%s` found in docs comment but not in definitions, skipping doc generation for it",
+                                command_name,
+                            )
+                        i_line = i_end_of_comment + 1
+                        continue
 
             command, replace_line = get_line_info(stripped_line)
             if command:
@@ -155,9 +196,11 @@ def update_existing(commands_by_criteria: list[Command]):
                     write_docs(f, command)
                     has_docs_commands.add(command["name"])
                     if replace_line:
+                        i_line += 1
                         continue
 
-            f.write(v)
+            f.write(line)
+            i_line += 1
 
         logger.info("Added missing docs to %i handlers", len(has_docs_commands))
 
